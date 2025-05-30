@@ -1,0 +1,10 @@
+services:
+  tic-tac-toe:
+    build: .
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    environment:
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80
+    container_name: tic-tac-toe
