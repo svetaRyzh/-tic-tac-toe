@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Крестики-нолики</title>
+    <style>
+            :root {
+        --kombu-green: #3a4a42;
+        --artichoke: #7a8b78;
+        --laurel-green: #a3b18a;
+        --pastel-gray: #dad7cd;
+        --quick-silver: #7a8b78;
+        --border-radius: 15px;
+        --box-shadow: 0 10px 30px rgba(57, 73, 49, 0.15);
+        --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    body {
+        font-family: 'Trebuchet MS', Helvetica, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: radial-gradient(at 98.88226026973985% 47.99828338279228%, hsla(195.42857142857142, 36.45833333333332%, 37.64705882352941%, 1) 0%, hsla(195.42857142857142, 36.45833333333332%, 37.64705882352941%, 0) 100%), radial-gradient(at 84.24258185736842% 42.578645537695856%, hsla(160, 5.357142857142836%, 78.03921568627452%, 1) 0%, hsla(160, 5.357142857142836%, 78.03921568627452%, 0) 100%), radial-gradient(at 37.04543852138542% 44.23362799032884%, hsla(195.42857142857142, 36.45833333333332%, 37.64705882352941%, 1) 0%, hsla(195.42857142857142, 36.45833333333332%, 37.64705882352941%, 0) 100%), radial-gradient(at 22.272825423063924% 42.59301037524605%, hsla(160, 5.357142857142836%, 78.03921568627452%, 1) 0%, hsla(160, 5.357142857142836%, 78.03921568627452%, 0) 100%), radial-gradient(at 23.2006467014928% 18.735263426175553%, hsla(195.42857142857142, 36.45833333333332%, 37.64705882352941%, 1) 0%, hsla(195.42857142857142, 36.45833333333332%, 37.64705882352941%, 0) 100%), radial-gradient(at 62.476355399337734% 1.2605188943770163%, hsla(160, 5.357142857142836%, 78.03921568627452%, 1) 0%, hsla(160, 5.357142857142836%, 78.03921568627452%, 0) 100%), radial-gradient(at 12.313594626196078% 16.364832167985966%, hsla(195.42857142857142, 36.45833333333332%, 37.64705882352941%, 1) 0%, hsla(195.42857142857142, 36.45833333333332%, 37.64705882352941%, 0) 100%), radial-gradient(at 8.724879321367096% 92.63589473801592%, hsla(160, 5.357142857142836%, 78.03921568627452%, 1) 0%, hsla(160, 5.357142857142836%, 78.03921568627452%, 0) 100%), radial-gradient(at 64.95472219827327% 51.24750259347606%, hsla(195.42857142857142, 36.45833333333332%, 37.64705882352941%, 1) 0%, hsla(195.42857142857142, 36.45833333333332%, 37.64705882352941%, 0) 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #2d3a34; /* Темно-зеленый для текста */
+    }
+
+    .game-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        width: 90%;
+        padding: 35px;
+        overflow: hidden;
+        backdrop-filter: blur(15px);
+        box-shadow:
+            inset -0.75px -0.5px rgba(255, 255, 255, 0.1),
+            inset +0.75px +0.5px rgba(255, 255, 255, 0.025),
+            3px 2px 10px rgba(0, 0, 0, 0.15),
+            inset 0px 0px 10px 5px rgba(255, 255, 255, 0.025),
+            inset 0px 0px 40px 5px rgba(255, 255, 255, 0.025);
+        position: relative;
+        border-radius: var(--border-radius);
+        background: rgba(255, 255, 255, 0.15);
+        transition: var(--transition);
+    }
+
+    .game-board {
+        display: grid;
+        grid-template-columns: repeat(3, 160px);
+        grid-template-rows: repeat(3, 160px);
+        gap: 15px;
+        margin-right: 50px;
+        flex-shrink: 0;
+    }
+
+    .cell {
+        width: 160px;
+        height: 160px;
+        border-radius: var(--border-radius);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 80px;
+        cursor: pointer;
+        transition: var(--transition);
+        background-color: rgba(255, 255, 255, 0.85);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .cell::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0));
+        border-radius: calc(var(--border-radius) - 2px);
+        z-index: 0;
+        transition: var(--transition);
+    }
+
+    .cell:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 8px 20px rgba(57, 73, 49, 0.2);
+        background-color: rgba(255, 255, 255, 0.95);
+    }
+
+    .cell.x {
+        color: var(--kombu-green);
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(57, 73, 49, 0.1);
+    }
+
+    .cell.o {
+        color: var(--artichoke);
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(144, 137, 127, 0.1);
+    }
+
+    .controls {
+        width: 315px;
+        padding: 25px;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: var(--border-radius);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: var(--transition);
+    }
+
+    h3 {
+        color: #2d3a34;
+        margin-top: 0;
+        margin-bottom: 18px;
+        font-size: 1.3rem;
+        font-weight: 650;
+        letter-spacing: -0.3px;
+    }
+
+    .player-choice {
+        margin-bottom: 28px;
+    }
+
+    .player-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .difficulty {
+        margin-bottom: 28px;
+    }
+
+    .difficulty-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+
+    button {
+        padding: 12px 18px;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-weight: 550;
+        transition: var(--transition);
+        background-color: rgba(255, 255, 255, 0.85);
+        color: #2d3a34;
+        font-size: 0.95rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        position: relative;
+        overflow: hidden;
+    }
+
+    button::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: calc(var(--border-radius) - 1px);
+        transition: var(--transition);
+    }
+
+    button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    button:hover::after {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .active {
+        background-color: var(--kombu-green);
+        color: white;
+        box-shadow: 0 4px 8px rgba(57, 73, 49, 0.25);
+    }
+
+    .difficulty-btn.active {
+        background-color: var(--artichoke);
+        color: white;
+        box-shadow: 0 4px 8px rgba(122, 139, 120, 0.3);
+    }
+
+    .stats {
+        margin-top: 28px;
+        background: rgba(255, 255, 255, 0.35);
+        padding: 20px;
+        border-radius: var(--border-radius);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        transition: var(--transition);
+    }
+
+    .stats:hover {
+        background: rgba(255, 255, 255, 0.45);
+    }
+
+    .stats-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .stats-table td {
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stats-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .stats-table td:first-child {
+        font-weight: 520;
+        color: #2d3a34;
+    }
+
+    .stats-table td:last-child {
+        text-align: right;
+        font-weight: 650;
+        color: var(--kombu-green);
+    }
+
+    #reset-btn {
+        width: 100%;
+        margin-top: 25px;
+        background-color: var(--kombu-green);
+        color: white;
+        padding: 14px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        border: none;
+        box-shadow: 0 4px 10px rgba(57, 73, 49, 0.3);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    #reset-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.6s;
+    }
+
+    #reset-btn:hover {
+        background-color: #2d3a34;
+        transform: translateY(-3px) scale(1.01);
+        box-shadow: 0 6px 15px rgba(57, 73, 49, 0.4);
+    }
+
+    #reset-btn:hover::before {
+        left: 100%;
+    }
+
+    /* Анимация для ячеек при заполнении */
+    @keyframes cellPop {
+        0% { transform: scale(0.8); opacity: 0; }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .cell.x, .cell.o {
+        animation: cellPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+        
+        @media (max-width: 900px) {
+            .game-container {
+                flex-direction: column;
+                padding: 30px;
+            }
+            
+            .game-board {
+                margin-right: 0;
+                margin-bottom: 35px;
+                grid-template-columns: repeat(3, 130px);
+                grid-template-rows: repeat(3, 130px);
+            }
+            
+            .cell {
+                width: 130px;
+                height: 130px;
+                font-size: 70px;
+            }
+            
+            .controls {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .game-board {
+                grid-template-columns: repeat(3, 100px);
+                grid-template-rows: repeat(3, 100px);
+                gap: 10px;
+            }
+            
+            .cell {
+                width: 100px;
+                height: 100px;
+                font-size: 55px;
+            }
+            
+            .controls {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="game-container">
+        <div class="game-board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+        
+        <div class="controls">
+            <div class="player-choice">
+                <h3>Играть за:</h3>
+                <div class="player-buttons">
+                    <button id="player-x" class="active">Крестики (X)</button>
+                    <button id="player-o">Нолики (O)</button>
+                </div>
+            </div>
+            
+            <div class="difficulty">
+                <h3>Сложность</h3>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-btn active" data-difficulty="easy">Легкая</button>
+                    <button class="difficulty-btn" data-difficulty="medium">Средняя</button>
+                    <button class="difficulty-btn" data-difficulty="hard">Сложная</button>
+                </div>
+            </div>
+            
+            <div class="stats">
+                <h3>Статистика</h3>
+                <table class="stats-table">
+                    <tr>
+                        <td>Победы</td>
+                        <td id="wins">0</td>
+                    </tr>
+                    <tr>
+                        <td>Проигрыши</td>
+                        <td id="losses">0</td>
+                    </tr>
+                    <tr>
+                        <td>Ничьи</td>
+                        <td id="draws">0</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <button id="reset-btn">Новая игра</button>
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Элементы управления игроком
+        const playerXBtn = document.getElementById('player-x');
+        const playerOBtn = document.getElementById('player-o');
+        
+        // Кнопки уровня сложности
+        const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+        
+        // Обработчики для кнопок выбора игрока
+        playerXBtn.addEventListener('click', function() {
+            setActivePlayer('x');
+            // Здесь можно добавить логику начала новой игры при смене игрока
+        });
+        
+        playerOBtn.addEventListener('click', function() {
+            setActivePlayer('o');
+            // Здесь можно добавить логику начала новой игры при смене игрока
+        });
+        
+        // Обработчики для кнопок уровня сложности
+        difficultyBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const difficulty = this.getAttribute('data-difficulty');
+                setActiveDifficulty(difficulty);
+                // Здесь можно добавить логику изменения сложности AI
+            });
+        });
+        
+        // Функция для установки активного игрока
+        function setActivePlayer(player) {
+            if (player === 'x') {
+                playerXBtn.classList.add('active');
+                playerOBtn.classList.remove('active');
+            } else {
+                playerXBtn.classList.remove('active');
+                playerOBtn.classList.add('active');
+            }
+            
+            // Сохраняем выбор в localStorage
+            localStorage.setItem('ticTacToePlayer', player);
+        }
+        
+        // Функция для установки активного уровня сложности
+        function setActiveDifficulty(difficulty) {
+            difficultyBtns.forEach(btn => {
+                if (btn.getAttribute('data-difficulty') === difficulty) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Сохраняем выбор в localStorage
+            localStorage.setItem('ticTacToeDifficulty', difficulty);
+        }
+        
+        // При загрузке страницы проверяем сохраненные настройки
+        const savedPlayer = localStorage.getItem('ticTacToePlayer');
+        if (savedPlayer) {
+            setActivePlayer(savedPlayer);
+        }
+        
+        const savedDifficulty = localStorage.getItem('ticTacToeDifficulty');
+        if (savedDifficulty) {
+            setActiveDifficulty(savedDifficulty);
+        }
+        
+        // Обработчик для кнопки "Новая игра"
+        document.getElementById('reset-btn').addEventListener('click', function() {
+            // Здесь будет логика сброса игры
+            console.log('Начата новая игра');
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Состояние игры
+        const board = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'x';
+        let gameActive = true;
+        let playerChoice = 'x';
+        let difficulty = 'easy';
+        
+        // Элементы управления
+        const cells = document.querySelectorAll('.cell');
+        const playerXBtn = document.getElementById('player-x');
+        const playerOBtn = document.getElementById('player-o');
+        const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const winsElement = document.getElementById('wins');
+        const lossesElement = document.getElementById('losses');
+        const drawsElement = document.getElementById('draws');
+        
+        // Статистика
+        let stats = {
+            wins: 0,
+            losses: 0,
+            draws: 0
+        };
+        
+        // Сообщения
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // горизонтали
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // вертикали
+            [0, 4, 8], [2, 4, 6]             // диагонали
+        ];
+        
+        // Таймер для автоматического перезапуска
+        let restartTimer = null;
+        
+        // Инициализация игры
+        function initGame() {
+            // Загрузка сохраненных настроек
+            const savedPlayer = localStorage.getItem('ticTacToePlayer');
+            const savedDifficulty = localStorage.getItem('ticTacToeDifficulty');
+            const savedStats = localStorage.getItem('ticTacToeStats');
+            
+            if (savedPlayer) {
+                playerChoice = savedPlayer;
+                setActivePlayer(savedPlayer);
+            }
+            
+            if (savedDifficulty) {
+                difficulty = savedDifficulty;
+                setActiveDifficulty(savedDifficulty);
+            }
+            
+            if (savedStats) {
+                stats = JSON.parse(savedStats);
+                updateStatsDisplay();
+            }
+            
+            // Установка обработчиков событий
+            cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+            playerXBtn.addEventListener('click', () => {
+                setActivePlayer('x');
+                resetGame();
+            });
+            playerOBtn.addEventListener('click', () => {
+                setActivePlayer('o');
+                resetGame();
+            });
+            difficultyBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const newDifficulty = this.getAttribute('data-difficulty');
+                    setActiveDifficulty(newDifficulty);
+                });
+            });
+            resetBtn.addEventListener('click', resetGame);
+            
+            // Если игрок играет за O, первый ход делает бот
+            if (playerChoice === 'o') {
+                setTimeout(botMove, 500);
+            }
+        }
+        
+        // Обработка хода игрока
+        function handleCellClick(e) {
+            const cellIndex = parseInt(e.target.getAttribute('data-index'));
+            
+            // Проверка на возможность хода
+            if (board[cellIndex] !== '' || !gameActive || currentPlayer !== playerChoice) {
+                return;
+            }
+            
+            // Ход игрока
+            makeMove(cellIndex, currentPlayer);
+            
+            // Проверка на победу/ничью
+            if (checkWin(currentPlayer)) {
+                endGame(false);
+                return;
+            } else if (isBoardFull()) {
+                endGame(null);
+                return;
+            }
+            
+            // Переход хода к боту
+            currentPlayer = getOpponent(currentPlayer);
+            setTimeout(botMove, 500);
+        }
+        
+        // Ход бота
+        function botMove() {
+            if (!gameActive || currentPlayer !== getOpponent(playerChoice)) return;
+            
+            let move;
+            
+            switch (difficulty) {
+                case 'easy':
+                    move = getEasyMove();
+                    break;
+                case 'medium':
+                    move = getMediumMove();
+                    break;
+                case 'hard':
+                    move = getHardMove();
+                    break;
+                default:
+                    move = getEasyMove();
+            }
+            
+            makeMove(move, currentPlayer);
+            
+            // Проверка на победу/ничью
+            if (checkWin(currentPlayer)) {
+                endGame(true);
+            } else if (isBoardFull()) {
+                endGame(null);
+            } else {
+                currentPlayer = playerChoice;
+            }
+        }
+        
+        // Легкий уровень - случайный ход
+        function getEasyMove() {
+            const emptyCells = board.map((cell, index) => cell === '' ? index : null).filter(val => val !== null);
+            return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        }
+        
+        // Средний уровень - пытается выиграть или блокировать игрока
+        function getMediumMove() {
+            const botSymbol = getOpponent(playerChoice);
+            
+            // 1. Попытаться выиграть
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                if (board[a] === botSymbol && board[b] === botSymbol && board[c] === '') return c;
+                if (board[a] === botSymbol && board[c] === botSymbol && board[b] === '') return b;
+                if (board[b] === botSymbol && board[c] === botSymbol && board[a] === '') return a;
+            }
+            
+            // 2. Попытаться блокировать игрока
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                if (board[a] === playerChoice && board[b] === playerChoice && board[c] === '') return c;
+                if (board[a] === playerChoice && board[c] === playerChoice && board[b] === '') return b;
+                if (board[b] === playerChoice && board[c] === playerChoice && board[a] === '') return a;
+            }
+            
+            // 3. Случайный ход
+            return getEasyMove();
+        }
+        
+        // Сложный уровень - минимакс алгоритм
+        function getHardMove() {
+            const botSymbol = getOpponent(playerChoice);
+            const emptyCells = board.map((cell, index) => cell === '' ? index : null).filter(val => val !== null);
+            
+            // Если это первый ход, делаем его в центр или угол для оптимальной стратегии
+            if (emptyCells.length === 9) {
+                return [4, 0, 2, 6, 8][Math.floor(Math.random() * 5)]; // Центр или углы
+            }
+            
+            // Если осталось 8 клеток и центр свободен, занимаем его
+            if (emptyCells.length === 8 && board[4] === '') {
+                return 4;
+            }
+            
+            // Используем минимакс алгоритм для лучшего хода
+            let bestScore = -Infinity;
+            let bestMove;
+            
+            for (let i = 0; i < emptyCells.length; i++) {
+                const move = emptyCells[i];
+                board[move] = botSymbol;
+                const score = minimax(board, 0, false, botSymbol);
+                board[move] = '';
+                
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                }
+            }
+            
+            return bestMove;
+        }
+        
+        // Минимакс алгоритм
+        function minimax(board, depth, isMaximizing, botSymbol) {
+            const playerSymbol = getOpponent(botSymbol);
+            
+            // Проверка терминальных состояний
+            if (checkWin(botSymbol)) return 10 - depth;
+            if (checkWin(playerSymbol)) return depth - 10;
+            if (isBoardFull()) return 0;
+            
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i] === '') {
+                        board[i] = botSymbol;
+                        const score = minimax(board, depth + 1, false, botSymbol);
+                        board[i] = '';
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i] === '') {
+                        board[i] = playerSymbol;
+                        const score = minimax(board, depth + 1, true, botSymbol);
+                        board[i] = '';
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+                return bestScore;
+            }
+        }
+        
+        // Сделать ход
+        function makeMove(index, player) {
+            board[index] = player;
+            cells[index].textContent = player.toUpperCase();
+            cells[index].classList.add(player);
+        }
+        
+        // Проверка победы
+        function checkWin(player) {
+            return winningConditions.some(condition => {
+                return condition.every(index => {
+                    return board[index] === player;
+                });
+            });
+        }
+        
+        // Проверка на ничью
+        function isBoardFull() {
+            return board.every(cell => cell !== '');
+        }
+        
+        // Завершение игры
+        function endGame(isLoss) {
+            gameActive = false;
+            
+            if (isLoss === null) {
+                // Ничья
+                stats.draws++;
+            } else if (isLoss) {
+                // Проигрыш (победа бота)
+                stats.losses++;
+            } else {
+                // Победа
+                stats.wins++;
+            }
+            
+            updateStatsDisplay();
+            saveStats();
+            
+            // Отменяем предыдущий таймер, если он был
+            if (restartTimer) {
+                clearTimeout(restartTimer);
+            }
+            
+            // Устанавливаем новый таймер для перезапуска через 2 секунды
+            restartTimer = setTimeout(resetGame, 2000);
+        }
+        
+        // Сброс игры
+        function resetGame() {
+            // Очищаем таймер
+            if (restartTimer) {
+                clearTimeout(restartTimer);
+                restartTimer = null;
+            }
+            
+            // Сбрасываем поле
+            board.fill('');
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('x', 'o');
+            });
+            
+            // Сбрасываем состояние игры
+            currentPlayer = 'x';
+            gameActive = true;
+            
+            // Если игрок играет за O, первый ход делает бот
+            if (playerChoice === 'o') {
+                setTimeout(botMove, 500);
+            }
+        }
+        
+        // Обновление статистики на экране
+        function updateStatsDisplay() {
+            winsElement.textContent = stats.wins;
+            lossesElement.textContent = stats.losses;
+            drawsElement.textContent = stats.draws;
+        }
+        
+        // Сохранение статистики
+        function saveStats() {
+            localStorage.setItem('ticTacToeStats', JSON.stringify(stats));
+        }
+        
+        // Установка активного игрока
+        function setActivePlayer(player) {
+            playerChoice = player;
+            if (player === 'x') {
+                playerXBtn.classList.add('active');
+                playerOBtn.classList.remove('active');
+            } else {
+                playerXBtn.classList.remove('active');
+                playerOBtn.classList.add('active');
+            }
+            localStorage.setItem('ticTacToePlayer', player);
+        }
+        
+        // Установка уровня сложности
+        function setActiveDifficulty(newDifficulty) {
+            difficulty = newDifficulty;
+            difficultyBtns.forEach(btn => {
+                if (btn.getAttribute('data-difficulty') === newDifficulty) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            localStorage.setItem('ticTacToeDifficulty', newDifficulty);
+            resetGame();
+        }
+        
+        // Получить символ противника
+        function getOpponent(player) {
+            return player === 'x' ? 'o' : 'x';
+        }
+        
+        // Запуск игры
+        initGame();
+    });
+</script>
+</body>
+</html>
